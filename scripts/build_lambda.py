@@ -13,6 +13,8 @@ import sys
 import tempfile
 import zipfile
 
+logger = logging.getLogger()
+
 def build(src_dir, output_path, install_dependencies):
     with tempfile.TemporaryDirectory() as build_dir:
         copy_tree(src_dir, build_dir)
@@ -44,8 +46,13 @@ def make_archive(src_dir, output_path):
 
     with zipfile.ZipFile(output_path, 'w') as archive:
         for root, dirs, files in os.walk(src_dir):
+            
             for file in files:
-                if file.endswith('.pyc'):
+                if file.endswith('.pyc') or  '.dist-info' in root:
+                    logger.info('Skipping {r}/{f}'.format(
+                        r=root,
+                        f=file
+                    ))
                     break
                 metadata = zipfile.ZipInfo(
                     os.path.join(root, file).replace(src_dir, '').lstrip(os.sep)
