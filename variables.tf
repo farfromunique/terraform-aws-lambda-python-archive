@@ -15,7 +15,7 @@ variable "install_dependencies" {
 }
 
 variable "exclude_files" {
-    description = "List of filenames (relative to Lambda's root) to exclude from archive."
-    type        = list(string)
-    default     = []
+    description = "List of filenames (relative to Lambda's root) to exclude from archive. space-seperated single line."
+    type        = string
+    default     = ""
 }

@@ -15,7 +15,8 @@ import zipfile
 
 logger = logging.getLogger()
 
-def build(src_dir: str, output_path: str, install_dependencies: bool, exclude_files: List[str] = []) -> str:
+def build(src_dir: str, output_path: str, install_dependencies: bool, exclude_files: str = '') -> str:
+    list_exclude_files = exclude_files.split()
     with tempfile.TemporaryDirectory() as build_dir:
         copy_tree(src_dir, build_dir)
         if os.path.exists(os.path.join(src_dir, 'requirements.txt')):
@@ -31,7 +32,7 @@ def build(src_dir: str, output_path: str, install_dependencies: bool, exclude_fi
                  check=True,
                  stdout=subprocess.DEVNULL,
             )
-        make_archive(build_dir, output_path, exclude_files)
+        make_archive(build_dir, output_path, list_exclude_files)
         return output_path
 
 def make_archive(src_dir: str, output_path: str, exclude_files: List[str] = []) -> None:
@@ -48,7 +49,7 @@ def make_archive(src_dir: str, output_path: str, exclude_files: List[str] = []) 
 
     with zipfile.ZipFile(output_path, 'w') as archive:
         for root, dirs, files in os.walk(src_dir):
-            
+
             for file in files:
                 is_pyc = file.endswith('.pyc')
                 is_distinfo = '.dist-info' in root
@@ -82,17 +83,17 @@ def get_hash(output_path: str) -> str:
 
 if __name__ == '__main__':
     logging.basicConfig(level='DEBUG')
-    query = {
-        'src_dir': 'examples/python/',
-        'output_path': 'example_output/example.zip',
-        'install_dependencies': True,
-        'exclude_files': []
-    }
-    # query = json.loads(sys.stdin.read())
+    # query = {
+    #     'src_dir': 'examples/python/',
+    #     'output_path': 'example_output/example.zip',
+    #     'install_dependencies': True,
+    #     'exclude_files': []
+    # }
+    query = json.loads(sys.stdin.read())
     logging.debug(query)
     archive = build(
-        src_dir=query['src_dir'], 
-        output_path=query['output_path'], 
-        install_dependencies=query['install_dependencies'], 
+        src_dir=query['src_dir'],
+        output_path=query['output_path'],
+        install_dependencies=query['install_dependencies'],
         exclude_files=query['exclude_files'])
     print(json.dumps({'archive': archive, 'base64sha256':get_hash(archive)}))
