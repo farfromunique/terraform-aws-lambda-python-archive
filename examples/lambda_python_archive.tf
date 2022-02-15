@@ -7,14 +7,14 @@ module "python_lambda_archive" {
     src_dir              = "${path.module}/python"
     output_path          = "${path.module}/lambda.zip"
     install_dependencies = false
-    # Requires v0.1.8 or more.
+    # Requires v0.1.9 or higher.
     exclude_files        = [
-        '.gitignore',
+        ".gitignore",
         # Any other file(s) you don't want included
         # I use pipenv for local development, but prefer requirements.txt for deployments
-        'Pipfile',
-        'Pipfile.lock',
-        '.env'
+        "Pipfile",
+        "Pipfile.lock",
+        ".env"
     ]
 }
 
